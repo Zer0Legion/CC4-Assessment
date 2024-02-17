@@ -1,17 +1,18 @@
 import re
 import cc4_io
 
-def create_restaurants_csv(
-        header: str,
-        dir_in="in/",
-        dir_out="out/",
-        src_restaurant_data="restaurant_data.json",
-        src_country_code="Country-Code.xlsx",
-        dst="restaurants.csv",
-        ) -> None:
 
+def create_restaurants_csv(
+    header: str,
+    dir_in="in/",
+    dir_out="out/",
+    src_restaurant_data="restaurant_data.json",
+    src_country_code="Country-Code.xlsx",
+    dst="restaurants.csv",
+    filter: float = 0.0,
+) -> None:
     """
-    Extracts the following fields and stores the data as restaurants.csv: 
+    Extracts the following fields and stores the data as restaurants.csv:
     - Restaurant Id
     - Restaurant Name
     - Country
@@ -30,6 +31,9 @@ def create_restaurants_csv(
                 return item["Country"]
         return ValueError()
 
+    if filter < 0 or filter > 5:
+        raise ValueError("Please enter a valid rating score!")
+
     country_codes = cc4_io.get_country_codes(dir_in + src_country_code)
     restaurant_data = cc4_io.get_restaurant_data(dir_in + src_restaurant_data)
     content = ""
@@ -41,24 +45,37 @@ def create_restaurants_csv(
 
             id = str(r["R"]["res_id"]).replace(",", ";")
             name = str(r["name"]).replace(",", ";")
-            country = str(get_country_name(r["location"]["country_id"], country_codes)).replace(",", ";")
+            country = str(
+                get_country_name(r["location"]["country_id"], country_codes)
+            ).replace(",", ";")
             city = str(r["location"]["city"]).replace(",", ";")
             user_rating_votes = str(r["user_rating"]["votes"]).replace(",", ";")
-            user_aggregate_rating = str(r["user_rating"]["aggregate_rating"]).replace(",", ";")
+            user_aggregate_rating = str(r["user_rating"]["aggregate_rating"]).replace(
+                ",", ";"
+            )
             cuisines = str(r["cuisines"]).replace(",", ";")
 
-            content += "{},{},{},{},{},{},{}\n".format(
-                id, name, country, city, user_rating_votes, user_aggregate_rating, cuisines)
+            if float(user_aggregate_rating) >= filter:
+                content += "{},{},{},{},{},{},{}\n".format(
+                    id,
+                    name,
+                    country,
+                    city,
+                    user_rating_votes,
+                    user_aggregate_rating,
+                    cuisines,
+                )
 
     cc4_io.write_restaurant_csv(dir_out, dst, header, content)
 
+
 def create_restaurant_events_csv(
-        header: str,
-        date="2019-04-[0-3][0-9]",
-        dir_in="in/",
-        dir_out="out/",
-        src_restaurant_data="restaurant_data.json",
-        dst="restaurant_events.csv"
+    header: str,
+    date="2019-04-[0-3][0-9]",
+    dir_in="in/",
+    dir_out="out/",
+    src_restaurant_data="restaurant_data.json",
+    dst="restaurant_events.csv",
 ):
     """
     Extracts the list of restaurants that have past event in the month of April 2019 and store the data as restaurant_events.csv:
@@ -83,28 +100,42 @@ def create_restaurant_events_csv(
                 events = restaurant["zomato_events"]
                 for event in events:
                     e = event["event"]
-                    if re.match("date", e["start_date"]) or re.match(date, e["end_date"]):
+                    if re.match("date", e["start_date"]) or re.match(
+                        date, e["end_date"]
+                    ):
                         # Capture info about restaurant
                         event_id = str(e["event_id"]).replace(",", ";")
                         restaurant_id = str(restaurant["id"]).replace(",", ";")
                         restaurant_name = str(restaurant["name"]).replace(",", ";")
-                        photo_url = e["photos"][0]["photo"]["url"] if len(e["photos"]) > 0 else "NA"
+                        photo_url = (
+                            e["photos"][0]["photo"]["url"]
+                            if len(e["photos"]) > 0
+                            else "NA"
+                        )
                         photo_url.replace(",", ";")
                         event_title = str(e["title"]).replace(",", ";")
                         event_start_date = str(e["start_date"]).replace(",", ";")
                         event_end_date = str(e["end_date"]).replace(",", ";")
 
                         content += "{},{},{},{},{},{},{}\n".format(
-                            event_id, restaurant_id, restaurant_name, photo_url, event_title, event_start_date, event_end_date)
-                        
+                            event_id,
+                            restaurant_id,
+                            restaurant_name,
+                            photo_url,
+                            event_title,
+                            event_start_date,
+                            event_end_date,
+                        )
+
     cc4_io.write_restaurant_csv(dir_out, dst, header, content)
 
+
 def determine_ratings_threshold(
-        header: str,
-        dir_in="in/",
-        dir_out="out/",
-        src_restaurant_data="restaurant_data.json",
-        dst="restaurant_rating_threshold.csv"
+    header: str,
+    dir_in="in/",
+    dir_out="out/",
+    src_restaurant_data="restaurant_data.json",
+    dst="restaurant_rating_threshold.csv",
 ):
     """
     From the dataset (restaurant_data.json), determine the threshold for the different rating text based on aggregate rating.
@@ -126,11 +157,11 @@ def determine_ratings_threshold(
     restaurant_data = cc4_io.get_restaurant_data(dir_in + src_restaurant_data)
 
     thresholds = {
-        "excellent" : (None, None),
-        "very_good" : (None, None),
-        "good" : (None, None),
-        "average" : (None, None),
-        "poor" : (0.0, None)
+        "excellent": (None, None),
+        "very_good": (None, None),
+        "good": (None, None),
+        "average": (None, None),
+        "poor": (0.0, None),
     }
 
     def adjust_min_max(score, key) -> None:
@@ -141,12 +172,12 @@ def determine_ratings_threshold(
             low = score
         else:
             new_threshold = (low, high)
-        
+
         if high == None or high < score:
             new_threshold = (low, score)
         else:
             new_threshold = (low, high)
-        
+
         thresholds.update([(key, new_threshold)])
 
     def adjust_threshold(score: float, text: str) -> tuple:
@@ -167,7 +198,7 @@ def determine_ratings_threshold(
             score = float(r["user_rating"]["aggregate_rating"])
             text = r["user_rating"]["rating_text"]
             adjust_threshold(score, text)
-            
+
     res = ""
     for o in thresholds:
         res += o + "," + str(thresholds[o][0]) + "\n"

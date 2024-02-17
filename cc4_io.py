@@ -2,12 +2,14 @@ import json
 import os
 import pandas as pd
 
+
 def get_country_codes(src) -> dict:
     """
     Creates a pandas dataframe from the country code excel sheet.
     """
     dataframe = pd.read_excel(src)
-    return dataframe.to_dict('records')
+    return dataframe.to_dict("records")
+
 
 def get_restaurant_data(src) -> list:
     """
@@ -18,6 +20,7 @@ def get_restaurant_data(src) -> list:
     json_obj = json.loads(json_str)
     fh.close()
     return json_obj
+
 
 def write_restaurant_csv(dir, filename, header, content) -> None:
     """
