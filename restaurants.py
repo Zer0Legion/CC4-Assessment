@@ -39,13 +39,13 @@ def create_restaurants_csv(
         for restaurant in restaurants_list:
             r = restaurant["restaurant"]
 
-            id = r["R"]["res_id"]
-            name = r["name"]
-            country = get_country_name(r["location"]["country_id"], country_codes)
-            city = r["location"]["city"]
-            user_rating_votes = r["user_rating"]["votes"]
-            user_aggregate_rating = r["user_rating"]["aggregate_rating"]
-            cuisines = r["cuisines"]
+            id = str(r["R"]["res_id"]).replace(",", ";")
+            name = str(r["name"]).replace(",", ";")
+            country = str(get_country_name(r["location"]["country_id"], country_codes)).replace(",", ";")
+            city = str(r["location"]["city"]).replace(",", ";")
+            user_rating_votes = str(r["user_rating"]["votes"]).replace(",", ";")
+            user_aggregate_rating = str(r["user_rating"]["aggregate_rating"]).replace(",", ";")
+            cuisines = str(r["cuisines"]).replace(",", ";")
 
             content += "{},{},{},{},{},{},{}\n".format(
                 id, name, country, city, user_rating_votes, user_aggregate_rating, cuisines)
@@ -85,13 +85,14 @@ def create_restaurant_events_csv(
                     e = event["event"]
                     if re.match("date", e["start_date"]) or re.match(date, e["end_date"]):
                         # Capture info about restaurant
-                        event_id = e["event_id"]
-                        restaurant_id = restaurant["id"]
-                        restaurant_name = restaurant["name"]
+                        event_id = str(e["event_id"]).replace(",", ";")
+                        restaurant_id = str(restaurant["id"]).replace(",", ";")
+                        restaurant_name = str(restaurant["name"]).replace(",", ";")
                         photo_url = e["photos"][0]["photo"]["url"] if len(e["photos"]) > 0 else "NA"
-                        event_title = e["title"]
-                        event_start_date = e["start_date"]
-                        event_end_date = e["end_date"]
+                        photo_url.replace(",", ";")
+                        event_title = str(e["title"]).replace(",", ";")
+                        event_start_date = str(e["start_date"]).replace(",", ";")
+                        event_end_date = str(e["end_date"]).replace(",", ";")
 
                         content += "{},{},{},{},{},{},{}\n".format(
                             event_id, restaurant_id, restaurant_name, photo_url, event_title, event_start_date, event_end_date)
