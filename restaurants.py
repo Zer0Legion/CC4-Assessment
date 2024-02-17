@@ -97,3 +97,79 @@ def create_restaurant_events_csv(
                             event_id, restaurant_id, restaurant_name, photo_url, event_title, event_start_date, event_end_date)
                         
     cc4_io.write_restaurant_csv(dir_out, dst, header, content)
+
+def determine_ratings_threshold(
+        header: str,
+        dir_in="in/",
+        dir_out="out/",
+        src_restaurant_data="restaurant_data.json",
+        dst="restaurant_rating_threshold.csv"
+):
+    """
+    From the dataset (restaurant_data.json), determine the threshold for the different rating text based on aggregate rating.
+    Return aggregates for the following ratings only:
+    - Excellent
+    - Very Good
+    - Good
+    - Average
+    - Poor
+
+    As the lowest rating in the dataset is 2.2, but it is likely
+    that a lower score constitutes as "Poor", I decided to
+    set the threshold for "Poor" to 0.
+
+    The output method was not specified. I chose to print the
+    output to stdout as well as writing to csv similar to
+    the previous subtasks.
+    """
+    restaurant_data = cc4_io.get_restaurant_data(dir_in + src_restaurant_data)
+
+    thresholds = {
+        "excellent" : (None, None),
+        "very_good" : (None, None),
+        "good" : (None, None),
+        "average" : (None, None),
+        "poor" : (0.0, None)
+    }
+
+    def adjust_min_max(score, key) -> None:
+        low, high = thresholds[key]
+        new_threshold: tuple = (None, None)
+        if low == None or low > score:
+            new_threshold = (score, high)
+            low = score
+        else:
+            new_threshold = (low, high)
+        
+        if high == None or high < score:
+            new_threshold = (low, score)
+        else:
+            new_threshold = (low, high)
+        
+        thresholds.update([(key, new_threshold)])
+
+    def adjust_threshold(score: float, text: str) -> tuple:
+        if text == "Excellent":
+            adjust_min_max(score, "excellent")
+        elif text == "Very Good":
+            adjust_min_max(score, "very_good")
+        elif text == "Good":
+            adjust_min_max(score, "good")
+        elif text == "Average":
+            adjust_min_max(score, "average")
+
+    for obj in restaurant_data:
+        restaurants_list = obj["restaurants"]
+        for restaurant in restaurants_list:
+            r = restaurant["restaurant"]
+
+            score = float(r["user_rating"]["aggregate_rating"])
+            text = r["user_rating"]["rating_text"]
+            adjust_threshold(score, text)
+            
+    res = ""
+    for o in thresholds:
+        res += o + "," + str(thresholds[o][0]) + "\n"
+
+    print("Thresholds are:\n" + res)
+    cc4_io.write_restaurant_csv(dir_out, dst, header, res)
