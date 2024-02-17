@@ -28,8 +28,9 @@ restaurants.py
 
 ## Assumptions
 1. The restaurant_data.json may be populated with different data, but its structure will not change.
-2. Subtask 3: As the current dataset has a lowest rating of 2.2, but lower rated restaurants will likely to have a "Poor" rating, the threshold for "Poor" being the lowest rated category is set to 0.0.
-3. Subtask 3: As the output method is not specified, the output is both printed to stdout and stored in a csv file for reference.
+2. Subtask 2: The specifications mention to store a list of restaurants implying unique restaurants, but some restaurants have multiple events. Based on the requirement of event id, I chose to include the duplicate restaurants which had more than 1 matching event.
+3. Subtask 3: As the current dataset has a lowest rating of 2.2, but lower rated restaurants will likely to have a "Poor" rating, the threshold for "Poor" being the lowest rated category is set to 0.0.
+4. Subtask 3: As the output method is not specified, the output is both printed to stdout and stored in a csv file for reference.
 
 ## Decisions
 1. For CSV related subtasks, commas in strings (like cuisine types) are replaced with ; to prevent interference with CSV's commas, and its similarity in meaning to a comma.
@@ -37,3 +38,5 @@ restaurants.py
 3. Docstrings are used to document the code.
 4. Python's built-in json package was used to parse information from the json files.
 5. pandas Dataframe was used to parse information from the Excel Sheet.
+
+### Thank you for your consideration.
