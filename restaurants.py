@@ -1,7 +1,7 @@
 import cc4_io
 
 def create_csv(
-        header,
+        header: str,
         dir_in="in/",
         dir_out="out/",
         src_restaurant_data="restaurant_data.json",
@@ -9,7 +9,21 @@ def create_csv(
         dst="restaurants.csv",
         ) -> None:
 
+    """
+    Extracts the following fields and stores the data as restaurants.csv: 
+    - Restaurant Id
+    - Restaurant Name
+    - Country
+    - City
+    - User Rating Votes
+    - User Aggregate Rating
+    - Cuisines
+    """
+
     def get_country_name(c_id: int, country_codes: dict) -> str:
+        """
+        Looks up the mappings for the country ids and their names.
+        """
         for item in country_codes:
             if item["Country Code"] == c_id:
                 return item["Country"]
@@ -36,3 +50,4 @@ def create_csv(
                 id, name, country, city, user_rating_votes, user_aggregate_rating, cuisines)
 
     cc4_io.write_restaurant_csv(dir_out, dst, header, content)
+
