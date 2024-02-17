@@ -21,7 +21,9 @@ restaurants.py
 3. In the CLI, type the following to install the required python packages:
    'pip install -r requirements.txt'
 4. To run the program, type the following command
-  'python main.py'
+  'python main.py' or
+  'python main.py [minimum_rating]',
+  which will generate a separate filtered list of restaurants that fit Steven's needs of having good enough user ratings.
 5. The output CSV files will be located in the out directory.
 
 ## Assumptions
