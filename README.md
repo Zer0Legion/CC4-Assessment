@@ -30,7 +30,8 @@ restaurants.py
 3. Subtask 3: As the output method is not specified, the output is both printed to stdout and stored in a csv file for reference.
 
 ## Decisions
-1. Constants / Environment variables like output file names are stored in main.py file. As they are task requirements they are not changed, but functionality is added to accomodate changing of these path/file variables.
-2. Docstrings are used to document the code.
-3. Python's built-in json package was used to parse information from the json files.
-4. pandas Dataframe was used to parse information from the Excel Sheet.
+1. For CSV related subtasks, commas in strings (like cuisine types) are replaced with ; to prevent interference with CSV's commas, and its similarity in meaning to a comma.
+2. Constants / Environment variables like output file names are stored in main.py file. As they are task requirements they are not changed, but functionality is added to accomodate changing of these path/file variables.
+3. Docstrings are used to document the code.
+4. Python's built-in json package was used to parse information from the json files.
+5. pandas Dataframe was used to parse information from the Excel Sheet.
