@@ -1,7 +1,9 @@
 import json
+import os
 
 def create_restaurants_csv(src1="restaurant_data.json", src2="Country-Code.xlsx", dst="restaurants.csv"):
-    
+    OUT = "out/"
+
     fh = open(src1, "r", encoding="utf-8")
     json_str = fh.read()
     json_obj = json.loads(json_str)
@@ -24,7 +26,10 @@ def create_restaurants_csv(src1="restaurant_data.json", src2="Country-Code.xlsx"
             csv += "{},{},{},{},{},{},{}\n".format(
                 id, name, country, city, user_rating_votes, user_aggregate_rating, cuisines)
 
-    fh_csv = open(dst, "w", encoding="utf-8")
+    if not os.path.exists(OUT):
+        os.mkdir(OUT)
+
+    fh_csv = open(OUT + dst, "w", encoding="utf-8")
     fh_csv.write(csv)
     fh_csv.close()
 
