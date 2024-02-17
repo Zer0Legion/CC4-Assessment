@@ -1,6 +1,7 @@
+import re
 import cc4_io
 
-def create_csv(
+def create_restaurants_csv(
         header: str,
         dir_in="in/",
         dir_out="out/",
@@ -51,3 +52,48 @@ def create_csv(
 
     cc4_io.write_restaurant_csv(dir_out, dst, header, content)
 
+def create_restaurant_events_csv(
+        header: str,
+        date="2019-04-[0-3][0-9]",
+        dir_in="in/",
+        dir_out="out/",
+        src_restaurant_data="restaurant_data.json",
+        dst="restaurant_events.csv"
+):
+    """
+    Extracts the list of restaurants that have past event in the month of April 2019 and store the data as restaurant_events.csv:
+    - Event Id
+    - Restaurant Id
+    - Restaurant Name
+    - Photo URL
+    - Event Title
+    - Event Start Date
+    - Event End Date
+
+    Note: Populates empty values with NA.
+    """
+
+    restaurant_data = cc4_io.get_restaurant_data(dir_in + src_restaurant_data)
+    content = ""
+    for obj in restaurant_data:
+        restaurants_list = obj["restaurants"]
+        for r in restaurants_list:
+            restaurant = r["restaurant"]
+            if not restaurant.get("zomato_events") == None:
+                events = restaurant["zomato_events"]
+                for event in events:
+                    e = event["event"]
+                    if re.match("date", e["start_date"]) or re.match(date, e["end_date"]):
+                        # Capture info about restaurant
+                        event_id = e["event_id"]
+                        restaurant_id = restaurant["id"]
+                        restaurant_name = restaurant["name"]
+                        photo_url = e["photos"][0]["photo"]["url"] if len(e["photos"]) > 0 else "NA"
+                        event_title = e["title"]
+                        event_start_date = e["start_date"]
+                        event_end_date = e["end_date"]
+
+                        content += "{},{},{},{},{},{},{}\n".format(
+                            event_id, restaurant_id, restaurant_name, photo_url, event_title, event_start_date, event_end_date)
+                        
+    cc4_io.write_restaurant_csv(dir_out, dst, header, content)
