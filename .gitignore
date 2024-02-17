@@ -1,2 +1,5 @@
 # Output files
 /out/*
+
+# Binary
+/__pycache__/*
