@@ -1,10 +1,12 @@
 import json
 import os
 
-def create_restaurants_csv(src1="restaurant_data.json", src2="Country-Code.xlsx", dst="restaurants.csv"):
-    OUT = "out/"
+OUT = "out/"
+IN = "in/"
 
-    fh = open(src1, "r", encoding="utf-8")
+def create_restaurants_csv(src1="restaurant_data.json", src2="Country-Code.xlsx", dst="restaurants.csv"):
+
+    fh = open(IN + src1, "r", encoding="utf-8")
     json_str = fh.read()
     json_obj = json.loads(json_str)
     fh.close()
